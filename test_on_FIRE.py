@@ -57,10 +57,11 @@ for pair_file in tqdm(match_pairs):
         if H_m1 is not None:
             h, w = Pred.image_height, Pred.image_width
             query_align_first = cv2.warpPerspective(query_image, H_m1, (h, w), borderMode=cv2.BORDER_CONSTANT,
-                                              borderValue=(0))
+                                                    borderValue=(0))
             query_align_first = query_align_first.astype(float)
             query_align_first /= 255.
-            H_m2, inliers_num_rate, _, _ = Pred.compute_homography(query_align_first, refer_im_path, query_is_image=True)
+            H_m2, inliers_num_rate, _, _ = Pred.compute_homography(query_align_first, refer_im_path,
+                                                                   query_is_image=True)
 
     good_nums_rate.append(inliers_num_rate)
     image_num += 1
@@ -85,20 +86,19 @@ for pair_file in tqdm(match_pairs):
         dis = (dst - dst_pred) ** 2
         dis = np.sqrt(dis[:, 0] + dis[:, 1])
         avg_dist = dis.mean()
-        
+
         mae = dis.max()
         mee = np.median(dis)
         if mae > 50 or mee > 20:
             inaccurate += 1
-    
+
     auc_record[category].append(avg_dist)
-    
 
-print('-'*40)
-print(f"Failed:{'%.2f' % (100*failed/image_num)}%, Inaccurate:{'%.2f' % (100*inaccurate/image_num)}%, "
-      f"Acceptable:{'%.2f' % (100*(image_num-inaccurate-failed)/image_num)}%")
+print('-' * 40)
+print(f"Failed:{'%.2f' % (100 * failed / image_num)}%, Inaccurate:{'%.2f' % (100 * inaccurate / image_num)}%, "
+      f"Acceptable:{'%.2f' % (100 * (image_num - inaccurate - failed) / image_num)}%")
 
-print('-'*40)
+print('-' * 40)
 
 auc = compute_auc(auc_record['S'], auc_record['P'], auc_record['A'])
 print('S: %.3f, P: %.3f, A: %.3f, mAUC: %.3f' % (auc['s'], auc['p'], auc['a'], auc['mAUC']))
